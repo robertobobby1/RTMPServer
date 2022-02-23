@@ -1,0 +1,4 @@
+/home/roberto/Descargas/installations/clion-2021.3.3/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/home/roberto/Descargas/installations/clion-2021.3.3/bin/ninja/linux/ninja -DCMAKE_CXX_COMPILER=/usr/bin/g++ -G Ninja /home/roberto/CLionProjects/RTMPServer
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/roberto/CLionProjects/RTMPServer/cmake-build-debug
