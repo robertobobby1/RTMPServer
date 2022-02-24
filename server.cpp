@@ -3,9 +3,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <pthread.h>
+#include <cstring>
 #include "Queue.h"
 #include "server.h"
 #include "RTMPRequestHandler.h"
+#include "LoggerException.h"
+#include "Logger.h"
 
 #define SERVERPORT 1935
 #define SOCKETERROR (-1)
@@ -32,6 +35,8 @@ pthread_cond_t condition = PTHREAD_COND_INITIALIZER;
 int main(){
 
     printf("Starting process\n");
+
+    // try to start socket, if error, retry
     start_socket();
     initialize_threads();
     printf("Start receiving connections\n");
@@ -42,7 +47,7 @@ int main(){
         check(client_socket =
                 accept(server_socket, (sockaddr*)&client_socket, (socklen_t*)&addr_size),
               "Couldn't accept external connection\n");
-        printf("Connected!\n");
+        printf("New connection!\n");
 
         int* p_client = (int*)malloc(sizeof(int));
         *p_client = client_socket;
@@ -58,29 +63,39 @@ int main(){
 /*
  * Starts socket, binds it to file descriptor(linux)
  * and starts listening in SERVERPORT
+ * if cannot start will retry infinitly
  */
-void start_socket(){
-    // Create a socket
-    check(server_socket = socket(AF_INET, SOCK_STREAM, 0),
-    "Couldn't create socket");
-    printf("socket created\n");
+void start_socket(){ // NOLINT(misc-no-recursion)
+    try{
+        // Create a socket
+        check(server_socket = socket(AF_INET, SOCK_STREAM, 0),
+              "Couldn't create socket");
 
-    // Set server address port and ip address in struct
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(SERVERPORT);
-    server_addr.sin_addr.s_addr = INADDR_ANY;
+        // Set server address port and ip address in struct
+        server_addr.sin_family = AF_INET;
+        server_addr.sin_port = htons(SERVERPORT);
+        server_addr.sin_addr.s_addr = INADDR_ANY;
 
-    // Bind the ip address and port to a socket
-    check(bind(server_socket, (SA*)&server_addr, sizeof(server_addr)),
-    "Couldn't bind to specified port and ip address");
+        // Bind the ip address and port to a socket
+        check(bind(server_socket, (SA*)&server_addr, sizeof(server_addr)),
+              "Couldn't bind to specified port and ip address");
 
-    // strart listening on selected  port and ip address
-    check(listen(server_socket, SERVER_BACKLOG),
-    "Couldn't listen");
-    printf("socket binded and listening \n");
-
+        // strart listening on selected  port and ip address
+        check(listen(server_socket, SERVER_BACKLOG),
+              "Couldn't listen");
+        printf("socket binded and listening \n");
+    }catch (const LoggerException &e) {
+        Logger::log(Logger::SOCKET_LOG, ((std::string)("retrying socket initialisation\n") +
+                                                        e.get_error_message())
+                                                        .c_str());
+        start_socket();
+    }
 }
 
+/*
+ * Threads will infinitly loop this method
+ * receiving new conexions from main via Queue
+ */
 void* handle_connection(void* arg) {
     int* p_client;
     while(true){
@@ -96,12 +111,12 @@ void* handle_connection(void* arg) {
 
 /*
  * checks errors, if there is an error will output message
- * and exit if not continue execution
+ * and throw exception to close server socket if not continue execution
  */
 void check(int socket, const char *err) {
     if (socket == SOCKETERROR){
         perror(err);
-        exit(1);
+        throw LoggerException(err);
     }
 }
 
@@ -111,7 +126,8 @@ void check(int socket, const char *err) {
  */
 void initialize_threads() {
     for (unsigned long &i : thread_pool) {
-        pthread_create(&thread_pool[i], nullptr, handle_connection, nullptr);
+        pthread_create(&thread_pool[i], nullptr,
+                       handle_connection, nullptr);
     }
 }
 

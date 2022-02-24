@@ -11,13 +11,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-file(GLOB_RECURSE Foo_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
+#file(GLOB_RECURSE Foo_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 add_executable(RTMPServer
         src/RTMPRequestHandler.cpp
         src/Queue.cpp
         src/RandomByteGenerator.cpp
         server.cpp
-    )
+        src/Logger.cpp)
 target_include_directories(RTMPServer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(RTMPServer PRIVATE Threads::Threads)
 

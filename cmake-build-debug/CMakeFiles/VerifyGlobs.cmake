@@ -5,6 +5,7 @@ cmake_policy(SET CMP0009 NEW)
 # Foo_SOURCES at CMakeLists.txt:14 (file)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "/home/roberto/CLionProjects/RTMPServer/src/*.cpp")
 set(OLD_GLOB
+  "/home/roberto/CLionProjects/RTMPServer/src/Logger.cpp"
   "/home/roberto/CLionProjects/RTMPServer/src/Queue.cpp"
   "/home/roberto/CLionProjects/RTMPServer/src/RTMPRequestHandler.cpp"
   "/home/roberto/CLionProjects/RTMPServer/src/RandomByteGenerator.cpp"

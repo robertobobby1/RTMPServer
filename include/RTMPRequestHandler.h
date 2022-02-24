@@ -9,6 +9,9 @@ class RTMPRequestHandler {
         static void check(int socket, const char *err);
         static void receiveHandshake(int clientFD);
         static void sendHandshakeBack(int clientFD);
+        static void receiveHandshakeBack(int clientFD);
+        static void sendRandomBytes(int clientFD);
+        static void processRequest(int clientFD);
 };
 
 
