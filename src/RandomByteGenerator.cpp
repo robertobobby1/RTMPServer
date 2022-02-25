@@ -1,21 +1,16 @@
 #include "RandomByteGenerator.h"
 #include <stdlib.h>
-#include <fstream>
 
-std::byte* RandomByteGenerator::run(){
-    return randomByteGenerator();
-}
+unsigned char pBytes[1537];
 
-std::byte* RandomByteGenerator::randomByteGenerator() {
-    auto* pBytes = new std::byte[1535];
+unsigned char* RandomByteGenerator::run(){
     // Fill random value.
     srand( 255 );
-    for( int i = 0; i < 1536; i++ )
+    // first byte (0x03)
+    pBytes[0] = (unsigned char)3;
+    for( int i = 1; i < 1536; i++ )
     {
-        if (i == 0) {
-            pBytes[i] = (std::byte)3;
-        }
-        pBytes[ i ] = ( std::byte ) rand();
+        pBytes[i] = (unsigned char)rand();
     }
-    return (std::byte*)pBytes;
+    return pBytes;
 }

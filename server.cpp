@@ -85,9 +85,10 @@ void start_socket(){ // NOLINT(misc-no-recursion)
               "Couldn't listen");
         printf("socket binded and listening \n");
     }catch (const LoggerException &e) {
-        Logger::log(Logger::SOCKET_LOG, ((std::string)("retrying socket initialisation\n") +
+        Logger::log(Logger::SOCKET_LOG, ((std::string)("retrying socket initialisation in 7 seconds\n") +
                                                         e.get_error_message())
                                                         .c_str());
+        sleep(7);
         start_socket();
     }
 }

@@ -2,17 +2,18 @@
 #include <cstdio>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <cstring>
 #include "RTMPRequestHandler.h"
 #include "RandomByteGenerator.h"
 #include "LoggerException.h"
 #include "Logger.h"
 
 #define BUFSIZE 4096
+#define HANDSHAKE_BUFFER_SIZE 1538
 
-struct timeval timeout;
-unsigned char client_handshake[BUFSIZE];
-unsigned char client_handshakeBack[BUFSIZE];
-std::byte *randomBytes;
+unsigned char client_handshake[HANDSHAKE_BUFFER_SIZE];
+unsigned char client_handshakeBack[HANDSHAKE_BUFFER_SIZE];
+unsigned char randomBytes[HANDSHAKE_BUFFER_SIZE];
 
 /*
  * Threads will enter this method to process RTMP request,
@@ -34,6 +35,7 @@ void RTMPRequestHandler::handleRequest(const int* p_client) {
  */
 void RTMPRequestHandler::processRequest(int clientFD){
     receiveHandshake(clientFD);
+    sendRandomBytes(clientFD);
     sendHandshakeBack(clientFD);
     receiveHandshakeBack(clientFD);
     // output on command line full request
@@ -61,18 +63,14 @@ void RTMPRequestHandler::receiveHandshake(int clientFD){
     size_t bytes_read;
     // will keep message size
     int msgsize = 0;
-
     // read client's message
-    while(msgsize < 1537){
-        bytes_read = read(clientFD, client_handshake+msgsize, sizeof(client_handshake)-msgsize-1);
+    while(msgsize < HANDSHAKE_BUFFER_SIZE - 1){
+        bytes_read = read(clientFD, client_handshake+msgsize, sizeof(client_handshake));
         msgsize += (int)bytes_read;
-        if (msgsize > BUFSIZE-1) {
-            break;
-        }
     }
     check((int)bytes_read, "error recieving client message\n");
 
-    if (msgsize-1 != 1536) {
+    if (msgsize != HANDSHAKE_BUFFER_SIZE - 1) {
         printf("Not an rtmp packet");
         return;
     }
@@ -94,7 +92,7 @@ void RTMPRequestHandler::sendHandshakeBack(int clientFD) {
  * Will generate random bytes to send to client
  */
 void RTMPRequestHandler::sendRandomBytes(int clientFD){
-    randomBytes = RandomByteGenerator::run();
+    memmove(randomBytes,RandomByteGenerator::run(), sizeof(randomBytes));
     check(send(clientFD, randomBytes, sizeof(client_handshake), 0),
         "couldn't send correctly our 1537 randomBytes");
 }
@@ -107,12 +105,15 @@ void RTMPRequestHandler::receiveHandshakeBack(int clientFD){
     size_t bytes_read;
     // will keep message size
     int msgsize = 0;
-    while(msgsize < 1537){
-        bytes_read = read(clientFD, client_handshakeBack+msgsize, sizeof(client_handshakeBack)-msgsize-1);
+    while(msgsize < HANDSHAKE_BUFFER_SIZE){
+        bytes_read = read(clientFD, client_handshakeBack+msgsize, sizeof(client_handshakeBack));
         msgsize += (int)bytes_read;
-        if (msgsize > BUFSIZE-1) {
-            break;
-        }
+    }
+    int x = 0;
+    msgsize = 0;
+    while(msgsize < HANDSHAKE_BUFFER_SIZE){
+        bytes_read = read(clientFD, client_handshakeBack+msgsize, sizeof(client_handshakeBack));
+        msgsize += (int)bytes_read;
     }
 
 }

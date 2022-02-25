@@ -1,11 +1,8 @@
 #ifndef RTMPSERVER_RANDOMBYTEGENERATOR_H
 #define RTMPSERVER_RANDOMBYTEGENERATOR_H
-#include <cstddef>
 
-class RandomByteGenerator{
+class RandomByteGenerator {
 public:
-    static std::byte* run();
-    static std::byte* randomByteGenerator();
+    static unsigned char* run();
 };
-
 #endif //RTMPSERVER_RANDOMBYTEGENERATOR_H
