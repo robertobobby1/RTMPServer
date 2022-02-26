@@ -6,6 +6,7 @@ class Logger {
 public:
     enum Error{
         SOCKET_LOG,
+        SOCKET_ERROR_LOG,
         DATA_LOG,
         BBDD_LOG
     };

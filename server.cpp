@@ -3,11 +3,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <pthread.h>
-#include <cstring>
 #include "Queue.h"
 #include "server.h"
 #include "RTMPRequestHandler.h"
-#include "LoggerException.h"
+#include "SocketExcepcion.h"
 #include "Logger.h"
 
 #define SERVERPORT 1935
@@ -19,7 +18,7 @@ typedef struct sockaddr_in SA_IN;
 typedef struct sockaddr SA;
 
 // linux socket  identifiers are ints
-int server_socket, client_socket, addr_size;
+int server_socket;
 // structs for ip address and port
 SA_IN server_addr;
 // Queue to handle threads consuming and receiving requests
@@ -34,20 +33,21 @@ pthread_cond_t condition = PTHREAD_COND_INITIALIZER;
 
 int main(){
 
-    printf("Starting process\n");
-
+    Logger::log(Logger::SOCKET_LOG, "Starting process\n");
     // try to start socket, if error, retry
     start_socket();
     initialize_threads();
-    printf("Start receiving connections\n");
+    Logger::log(Logger::SOCKET_LOG, "Start receiving connections\n");
 
     // loop on infinite incoming requests
     while(true){
+        int client_socket, addr_size;
         addr_size = sizeof(SA_IN);
+
         check(client_socket =
                 accept(server_socket, (sockaddr*)&client_socket, (socklen_t*)&addr_size),
               "Couldn't accept external connection\n");
-        printf("New connection!\n");
+        Logger::log(Logger::SOCKET_LOG, "New connection!\n");
 
         int* p_client = (int*)malloc(sizeof(int));
         *p_client = client_socket;
@@ -83,9 +83,9 @@ void start_socket(){ // NOLINT(misc-no-recursion)
         // strart listening on selected  port and ip address
         check(listen(server_socket, SERVER_BACKLOG),
               "Couldn't listen");
-        printf("socket binded and listening \n");
-    }catch (const LoggerException &e) {
-        Logger::log(Logger::SOCKET_LOG, ((std::string)("retrying socket initialisation in 7 seconds\n") +
+        Logger::log(Logger::SOCKET_LOG, "socket binded and listening \n");
+    }catch (const SocketException &e) {
+        Logger::log(Logger::SOCKET_ERROR_LOG, ((std::string)("retrying socket initialisation in 7 seconds\n") +
                                                         e.get_error_message())
                                                         .c_str());
         sleep(7);
@@ -117,7 +117,7 @@ void* handle_connection(void* arg) {
 void check(int socket, const char *err) {
     if (socket == SOCKETERROR){
         perror(err);
-        throw LoggerException(err);
+        throw SocketException(err);
     }
 }
 
