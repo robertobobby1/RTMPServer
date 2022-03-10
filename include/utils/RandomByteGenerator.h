@@ -3,6 +3,6 @@
 
 class RandomByteGenerator {
 public:
-    static unsigned char* run();
+    static unsigned char* createHandshakeEcho();
 };
 #endif //RTMPSERVER_RANDOMBYTEGENERATOR_H

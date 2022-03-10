@@ -1,6 +1,7 @@
 #ifndef RTMPSERVER_LOGGER_H
 #define RTMPSERVER_LOGGER_H
 
+#include <string>
 
 class Logger {
 public:
@@ -12,6 +13,8 @@ public:
     };
 
     static void log(Error error_type, const char* err);
+    static void write(const char *string, const char *err);
+    static std::string currentDateToString();
 };
 
 

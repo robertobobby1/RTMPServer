@@ -1,10 +1,10 @@
-#ifndef RTMPSERVER_LOGGEREXCEPTION_H
-#define RTMPSERVER_LOGGEREXCEPTION_H
+#ifndef RTMPSERVER_SOCKETEXCEPCION_H
+#define RTMPSERVER_SOCKETEXCEPCION_H
 
 #include <exception>
 #include <string>
 
-class LoggerException: public std::exception
+class SocketException: public std::exception
 {
 public:
     /** Constructor (C strings).
@@ -13,19 +13,19 @@ public:
      *                 Hence, responsibility for deleting the char* lies
      *                 with the caller.
      */
-    explicit LoggerException(const char* message)
+    explicit SocketException(const char* message)
             : msg_(message) {}
 
     /** Constructor (C++ STL strings).
      *  @param message The error message.
      */
-    explicit LoggerException(std::string  message)
+    explicit SocketException(std::string  message)
             : msg_(std::move(message)) {}
 
     /** Destructor.
      * Virtual to allow for subclassing.
      */
-    ~LoggerException() noexcept override = default;
+    ~SocketException() noexcept override = default;
 
     /** Returns a pointer to the (constant) error description.
      *  @return A pointer to a const char*. The underlying memory
@@ -42,4 +42,4 @@ protected:
     std::string msg_;
 };
 
-#endif //RTMPSERVER_LOGGEREXCEPTION_H
+#endif //RTMPSERVER_SOCKETEXCEPCION_H

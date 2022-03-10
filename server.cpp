@@ -3,11 +3,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <pthread.h>
-#include "Queue.h"
+#include "utils/Queue.h"
 #include "server.h"
 #include "RTMPRequestHandler.h"
-#include "SocketExcepcion.h"
-#include "Logger.h"
+#include "utils/SocketExcepcion.h"
+#include "utils/Logger.h"
 
 #define SERVERPORT 1935
 #define SOCKETERROR (-1)
@@ -116,7 +116,6 @@ void* handle_connection(void* arg) {
  */
 void check(int socket, const char *err) {
     if (socket == SOCKETERROR){
-        perror(err);
         throw SocketException(err);
     }
 }
