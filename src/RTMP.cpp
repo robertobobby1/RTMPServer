@@ -78,7 +78,7 @@ void RTMP::processType0MessageHeader(const char *buffer) {
     timestamp = ntohl((*(unsigned int*) &data_buffer[0] << 8));
     // three bytes message length, get 4 bytes, first not wanted so remove first bytes w mask
     message_length = ntohl(*(unsigned int*) &data_buffer[2]) & 0x00ffffff;
-    message_type_id = buffer[6];
+    message_type_id = data_buffer[6];
     message_stream_id = ntohl(*(unsigned int*) &data_buffer[7]);
 }
 

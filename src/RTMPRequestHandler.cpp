@@ -118,13 +118,13 @@ void RTMPRequestHandler::sendRandomBytesAndReceiveBack(int clientFD){
 
 void RTMPRequestHandler::receive(int clientFD){
     int msgsize = 0; size_t bytes_read;
-    unsigned char data_buffer[BUFSIZE];
+    unsigned char data_buffer[1024];
     // read bytes
     bytes_read = read(clientFD, data_buffer, BUFSIZE);
     msgsize += (int)bytes_read;
-    //RTMP::printBits(data_buffer, msgsize);
 
     RTMP rtmp = RTMP((const char*)data_buffer, msgsize);
+    rtmp.getHeaderSize();
 
 /*  amf::v8 casted(AMFbuf);
     amf::Deserializer deserializer;

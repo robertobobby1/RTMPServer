@@ -3,12 +3,11 @@
 
 
 #include <cstdint>
-#include "Bytes.h"
 
 
 class TimestampManager {
     public:
-        static Bytes getCurrentTime();
+        static void getCurrentTime();
 };
 
 

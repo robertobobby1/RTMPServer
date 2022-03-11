@@ -17,6 +17,7 @@ class RTMP {
         void processType2MessageHeader(const char *buffer);
         void processType3MessageHeader(const char *buffer);
 
+        int getHeaderSize(){return header_size;}
 
         static void printBits(unsigned char *full_buffer, int msgsize);
         static std::uint32_t SwapBinary(std::uint32_t &value);
