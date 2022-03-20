@@ -43,7 +43,7 @@ public:
 	bool externalizable;
 
 	// Attribute names
-	// Technically, this should be a set. However, since AMF does not actually
+	// Technically, this should be a set. However, since AMF3 does not actually
 	// enforce the sealed property names to be unique, this needs to be a
 	// vector to ensure we read the corresponding values, even if they are
 	// later overwritten by another value for the same attribute name.

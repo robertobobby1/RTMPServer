@@ -13,6 +13,7 @@
 #include "RTMP.h"
 #include "amfobject.hpp"
 #include "amfstring.hpp"
+#include "AMF0Decoder.h"
 
 
 #define BUFSIZE 4096
@@ -122,12 +123,16 @@ void RTMPRequestHandler::receive(int clientFD){
     // read bytes
     bytes_read = read(clientFD, data_buffer, BUFSIZE);
     msgsize += (int)bytes_read;
+    int processed = 0;
 
-    RTMP rtmp = RTMP((const char*)data_buffer, msgsize);
-    rtmp.getHeaderSize();
+    while(processed < msgsize){
+        RTMP rtmp = RTMP((const char*)&data_buffer[processed]);
+        unsigned char amf_buffer[rtmp.message_length];
+        memcpy(amf_buffer, &data_buffer[rtmp.header_size+processed], rtmp.message_length);
 
-/*  amf::v8 casted(AMFbuf);
-    amf::Deserializer deserializer;
-    amf::AmfString method = deserializer.deserialize(casted).as<amf::AmfString>();*/
+        AMFPacket packet;
+        packet = AMF0Decoder::BlockDecoder((const char*)amf_buffer, msgsize);
+        processed += (int)(rtmp.message_length + rtmp.header_size);
+    }
 }
 

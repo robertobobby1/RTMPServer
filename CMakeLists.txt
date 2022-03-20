@@ -12,8 +12,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-#AMF deserializer and serializer
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/AMF)
+#AMF3 deserializer and serializer
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/AMF0)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/AMF3)
 
 #file(GLOB_RECURSE Foo_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 add_executable(RTMPServer
@@ -26,9 +27,10 @@ add_executable(RTMPServer
         ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/TimestampManager.cpp)
 target_include_directories(RTMPServer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# Threads lib and AMF lib
+# Threads lib and AMF3 lib
 target_link_libraries(RTMPServer PUBLIC Threads::Threads)
-target_link_libraries(RTMPServer PUBLIC AMF)
+target_link_libraries(RTMPServer PUBLIC AMF0)
+target_link_libraries(RTMPServer PUBLIC AMF3)
 
 
 

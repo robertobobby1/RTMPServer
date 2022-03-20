@@ -5,12 +5,8 @@
 #include "RTMP.h"
 #include "RTMPEnums.h"
 #include "utils/TimestampManager.h"
-#include "amf.hpp"
 
-#define SWAP_INT32(x) (((x) >> 24) | (((x) & 0x00FF0000) >> 8) | (((x) & 0x0000FF00) << 8) | ((x) << 24));
-
-
-RTMP::RTMP(const char *full_buffer, int msgsize){
+RTMP::RTMP(const char *full_buffer){
     initializeClassObjects(full_buffer);
 }
 
@@ -73,7 +69,6 @@ void RTMP::processType0MessageHeader(const char *buffer) {
     header_size += 11;
 
     memcpy(data_buffer, buffer, 11);
-    data_buffer[0] = '\006';data_buffer[1] = '\000';data_buffer[2] = '\004';
     // three bytes timestamp shift bytes right to get only three
     timestamp = ntohl((*(unsigned int*) &data_buffer[0] << 8));
     // three bytes message length, get 4 bytes, first not wanted so remove first bytes w mask
@@ -139,11 +134,6 @@ void RTMP::BasicHeaderType(const char *full_buffer) {
 
 
 
-
-std::uint32_t RTMP::SwapBinary(std::uint32_t &value) {
-    std::uint32_t tmp = ((value << 8) & 0xFF00FF00) | ((value >> 8) & 0xFF00FF);
-    value = (tmp << 16) | (tmp >> 16);
-}
 
 void RTMP::printBits(unsigned char full_buffer[], int msgsize) {
     std::bitset<8> bits[4096];

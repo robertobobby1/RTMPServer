@@ -16,7 +16,7 @@ v8 PacketHeader::serialize(SerializationContext& ctx) const {
 	v8 buf;
 	v8 value_data = value->serialize(ctx);
 	buf.reserve(2 + name.size() + 1 + 5 + value_data.size());
-	// Strings in AMF packets are always serialized as AMF0 UTF-8, i.e.
+	// Strings in AMF3 packets are always serialized as AMF0 UTF-8, i.e.
 	// U16 length (in network order) U8* value
 	// even though AMF3 encodes strings in a different format
 	v8 name_length = network_bytes<uint16_t>(name.size());

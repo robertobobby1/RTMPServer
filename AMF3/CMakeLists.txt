@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
-project(RTMPServer)
+project(AMF3)
 
-set(CMAKE_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set(CMAKE_BINARY_DIR bin)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -9,7 +9,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 #file(GLOB_RECURSE Foo_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
-add_library(AMF OBJECT
+add_library(AMF3 OBJECT
         ${CMAKE_CURRENT_SOURCE_DIR}/src/amfarray.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/amfbool.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/amfbytearray.cpp
@@ -27,7 +27,7 @@ add_library(AMF OBJECT
         ${CMAKE_CURRENT_SOURCE_DIR}/src/serializationcontext.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/serializer.cpp
         )
-target_include_directories(AMF PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(AMF3 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 
 
