@@ -92,25 +92,24 @@ std::string AMF0Decoder::processString(const char *buffer) {
  * Method iterates full object from start (0x03) till end (0x000009)
  * and adds pair values to an object struct
  */
-Object AMF0Decoder::processObject(const char *buffer) {
-    Object ret;
-    //ret = (Object*)malloc(sizeof(Object)*10);
+std::vector<std::pair<std::string, std::string>> AMF0Decoder::processObject(const char *buffer) {
+    std::vector<std::pair<std::string, std::string>> ret;
     int obj_num = 0;
 
     // each iteration will process one key-value pair
     while (!isEndObject(buffer)){
         // key is always string
-        ret.object[obj_num].key = processString(buffer);
+        ret[obj_num].first = processString(buffer);
         processed++;
         switch (buffer[processed-1]) {
             case AMF_DOUBLE:
-                ret.object[obj_num].value = std::to_string(processDouble(buffer));
+                ret[obj_num].second = std::to_string(processDouble(buffer));
                 break;
             case AMF_BOOL:
-                ret.object[obj_num].value = std::to_string(processBoolean(buffer));
+                ret[obj_num].second = std::to_string(processBoolean(buffer));
                 break;
             case AMF_STRING:
-                ret.object[obj_num].value = processString(buffer);
+                ret[obj_num].second = processString(buffer);
                 break;
             case AMF_NULL:
                 processed++;

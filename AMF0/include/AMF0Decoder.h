@@ -5,22 +5,10 @@
 #include <map>
 #include <list>
 
-#define MAX_OBJECT_SIZE 5
-#define MAX_TOTAL_OBJECTS 3
-
-struct PairValue{
-    std::string key;
-    std::string value;
-};
-
-struct Object{
-    PairValue object[MAX_OBJECT_SIZE];
-};
-
 struct AMFPacket{
     std::string command;
     double transaction_id;
-    Object objects[MAX_TOTAL_OBJECTS];
+    std::vector<std::vector<std::pair<std::string, std::string>>> objects;
 };
 
 enum amf_types : char {
@@ -40,7 +28,7 @@ class AMF0Decoder {
         AMF0Decoder(){processed = 0;}
 
         std::string processString(const char*);
-        Object processObject(const char*);
+        std::vector<std::pair<std::string, std::string>> processObject(const char*);
         double processDouble(const char*);
         bool processBoolean(const char*);
         bool isEndObject(const char*) const;

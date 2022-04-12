@@ -1,3 +1,5 @@
+#pragma once
+
 #include <unistd.h>
 #include <string>
 #include <sys/socket.h>
@@ -29,7 +31,6 @@ pthread_t thread_pool[THREAD_POOL_SIZE];
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 // avoid active standby (taking CPU time for condition)
 pthread_cond_t condition = PTHREAD_COND_INITIALIZER;
-
 
 int main(){
 
@@ -97,7 +98,7 @@ void start_socket(){ // NOLINT(misc-no-recursion)
  * Threads will infinitly loop this method
  * receiving new conexions from main via Queue
  */
-void* handle_connection(void* arg) {
+[[noreturn]] void* handle_connection(void* arg) {
     int* p_client;
     while(true){
         pthread_mutex_lock(&mutex);

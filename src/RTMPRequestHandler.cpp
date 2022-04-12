@@ -133,6 +133,9 @@ void RTMPRequestHandler::receive(int clientFD){
         AMFPacket packet;
         packet = AMF0Decoder::BlockDecoder((const char*)amf_buffer, msgsize);
         processed += (int)(rtmp.message_length + rtmp.header_size);
+        switch (packet.objects[0].get("app")) {
+
+        }
     }
 }
 
