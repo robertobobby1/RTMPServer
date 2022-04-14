@@ -89,6 +89,9 @@ void RTMP::processType3MessageHeader(const char *buffer) {
 
 }
 
+/*
+ * Processes basic header type and initializes those values on class variables
+ */
 void RTMP::BasicHeaderType(const char *full_buffer) {
     std::bitset<8> bits(full_buffer[0]);
     // basic header type bits from 2-7 stream id for 1byte length, 0 for 2byte length and 1 for 3byte length
@@ -119,27 +122,13 @@ void RTMP::BasicHeaderType(const char *full_buffer) {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void RTMP::printBits(unsigned char full_buffer[], int msgsize) {
-    std::bitset<8> bits[4096];
-    for (int i = 0; i < msgsize; i++) {
-        bits[i] = std::bitset<8>(full_buffer[i]);
-        std::cout << bits[i] << std::endl;
-        i++;
-    }
+/*
+ * If message_type_id is in (1-6) it will be a control message
+ * afterwards will have toi process control messages
+ */
+bool RTMP::isControlMessage() const {
+    return message_type_id == 1 || message_type_id == 2 ||
+           message_type_id == 3 || message_type_id == 4 ||
+           message_type_id == 5 || message_type_id == 6;
 }
+

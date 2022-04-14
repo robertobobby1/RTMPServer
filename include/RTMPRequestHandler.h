@@ -3,18 +3,23 @@
 
 #include <bitset>
 
+struct buffer_message{
+    int msgsize;
+    unsigned char* buffer;
+};
+
 class RTMPRequestHandler {
 
     public:
-        static void handleRequest(const int* p_client);
+
+        explicit RTMPRequestHandler(const int* clientFD);
+        void handleRequest() const;
         static void check(int socket, const char *err);
-        static void receiveHandshake(int clientFD);
-        static void sendRandomBytesAndReceiveBack(int clientFD);
-        static void processRequest(int clientFD);
-        static void sendHandshake(int clientFD);
-        static void receive(int clientFD);
+        void processRequest() const;
+        void receive1() const;
+        buffer_message receive() const;
 
-
+        int clientFD;
 };
 
 

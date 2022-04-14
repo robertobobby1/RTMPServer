@@ -17,7 +17,7 @@ class RTMP {
         void processType2MessageHeader(const char *buffer);
         void processType3MessageHeader(const char *buffer);
 
-        static void printBits(unsigned char *full_buffer, int msgsize);
+        bool isControlMessage() const;
 
         unsigned int header_size = 0;
         int stream_id, message_type_id;

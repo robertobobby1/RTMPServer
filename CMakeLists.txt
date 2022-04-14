@@ -20,11 +20,11 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/AMF3)
 add_executable(RTMPServer
         ${CMAKE_CURRENT_SOURCE_DIR}/src/RTMPRequestHandler.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/Queue.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/RandomByteGenerator.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/server.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/Logger.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/RTMP.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/TimestampManager.cpp)
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/TimestampManager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/RTMPHandshake.cpp )
 target_include_directories(RTMPServer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Threads lib and AMF3 lib

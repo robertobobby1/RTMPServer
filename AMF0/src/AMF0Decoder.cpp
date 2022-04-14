@@ -2,6 +2,7 @@
 #include <netinet/in.h>
 #include <cstring>
 #include "AMF0Decoder.h"
+#include "AMFDataPacket.h"
 
 #define ntohll(x) ((1==ntohl(1)) ? (x) : ((uint64_t)ntohl((x) & 0xFFFFFFFF) << 32) | ntohl((x) >> 32))
 
@@ -9,27 +10,35 @@
 /*
  * Considers network data (little-endian) and passes this to big-endian for multibyte values
  * One by one process full AMF0 packet
+ * Returns full AMFDataPacket
  */
-AMFPacket AMF0Decoder::BlockDecoder(const char *buffer, int length) {
-    AMF0Decoder decoder; AMFPacket decoded_packet;
-    int obj_num = 0;
+AMFDataPacket AMF0Decoder::BlockDecoder(const char *buffer, int length) {
+    AMF0Decoder decoder;
+    AMFDataPacket decoded_packet;
+    // object counter to find in maps afterwards
+    int obj_num = 0; int string_num = 0; int number_num = 0; int bool_num = 0;
 
     while(decoder.processed < length){
         decoder.processed++;
         switch (buffer[decoder.processed-1]) {
             case AMF_DOUBLE:
-                decoded_packet.transaction_id =
-                        decoder.processDouble(buffer);
+                // first number always transaction_id
+                if (number_num == 0) {decoded_packet.add("transaction_id", decoder.processDouble(buffer));}
+                else {decoded_packet.add("number-" + std::to_string(number_num), decoder.processDouble(buffer));}
+                number_num++;
                 break;
             case AMF_BOOL:
-                decoder.processBoolean(buffer);
+                decoded_packet.add("boolean-" + std::to_string(bool_num), decoder.processBoolean(buffer));
+                bool_num++;
                 break;
             case AMF_STRING:
-                decoded_packet.command =
-                        decoder.processString(buffer);
+                // first string always command
+                if (string_num == 0) {decoded_packet.add("command", decoder.processString(buffer));}
+                else {decoded_packet.add("string-" + std::to_string(string_num), decoder.processString(buffer));}
+                string_num++;
                 break;
             case AMF_OBJECT:
-                decoded_packet.objects[obj_num] = decoder.processObject(buffer);
+                decoded_packet.add(decoder.processObject(buffer));
                 obj_num++;
                 break;
             case AMF_NULL:
@@ -92,24 +101,24 @@ std::string AMF0Decoder::processString(const char *buffer) {
  * Method iterates full object from start (0x03) till end (0x000009)
  * and adds pair values to an object struct
  */
-std::vector<std::pair<std::string, std::string>> AMF0Decoder::processObject(const char *buffer) {
-    std::vector<std::pair<std::string, std::string>> ret;
-    int obj_num = 0;
+AMFDataPacket AMF0Decoder::processObject(const char *buffer) {
+    AMFDataPacket ret;
+    std::string key;
 
     // each iteration will process one key-value pair
     while (!isEndObject(buffer)){
         // key is always string
-        ret[obj_num].first = processString(buffer);
+        key = processString(buffer);
         processed++;
         switch (buffer[processed-1]) {
             case AMF_DOUBLE:
-                ret[obj_num].second = std::to_string(processDouble(buffer));
+                ret.add(key, processDouble(buffer));
                 break;
             case AMF_BOOL:
-                ret[obj_num].second = std::to_string(processBoolean(buffer));
+                ret.add(key, processBoolean(buffer));
                 break;
             case AMF_STRING:
-                ret[obj_num].second = processString(buffer);
+                ret.add(key, processString(buffer));
                 break;
             case AMF_NULL:
                 processed++;
@@ -117,7 +126,6 @@ std::vector<std::pair<std::string, std::string>> AMF0Decoder::processObject(cons
             default:
                 break;
         }
-        obj_num++;
     }
     // 3 last bytes 0x00, 0x00, 0x09(end block)
     processed += 3;

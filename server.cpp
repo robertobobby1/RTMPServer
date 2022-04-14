@@ -1,5 +1,3 @@
-#pragma once
-
 #include <unistd.h>
 #include <string>
 #include <sys/socket.h>
@@ -86,10 +84,10 @@ void start_socket(){ // NOLINT(misc-no-recursion)
               "Couldn't listen");
         Logger::log(Logger::SOCKET_LOG, "socket binded and listening \n");
     }catch (const SocketException &e) {
-        Logger::log(Logger::SOCKET_ERROR_LOG, ((std::string)("retrying socket initialisation in 7 seconds\n") +
+        Logger::log(Logger::SOCKET_ERROR_LOG, ((std::string)("retrying socket initialisation in 10 seconds\n") +
                                                         e.get_error_message())
                                                         .c_str());
-        sleep(7);
+        sleep(10);
         start_socket();
     }
 }
@@ -106,7 +104,7 @@ void start_socket(){ // NOLINT(misc-no-recursion)
         p_client = Queue::dequeue();
         pthread_mutex_unlock(&mutex);
         if (p_client != nullptr){
-            RTMPRequestHandler::handleRequest(p_client);
+            { (RTMPRequestHandler(p_client)); }
         }
     }
 }
