@@ -38,7 +38,7 @@ AMFDataPacket AMF0Decoder::BlockDecoder(const char *buffer, int length) {
                 string_num++;
                 break;
             case AMF_OBJECT:
-                decoded_packet.add(decoder.processObject(buffer));
+                decoded_packet.add(decoder.processObject(buffer, length));
                 obj_num++;
                 break;
             case AMF_NULL:
@@ -49,6 +49,7 @@ AMFDataPacket AMF0Decoder::BlockDecoder(const char *buffer, int length) {
                 break;
         }
     }
+    decoded_packet.byteError = decoder.byteError;
     return decoded_packet;
 }
 
@@ -64,7 +65,7 @@ void AMF0Decoder::UniTypeDecoder(const char *buffer) {
             processString(buffer);
             break;
         case '\003':
-            processObject(buffer);
+            //processObject(buffer);
             break;
         case '\005':
             processed++;
@@ -84,13 +85,13 @@ std::string AMF0Decoder::processString(const char *buffer) {
     memcpy(x, &buffer[processed], sizeof(uint16_t));
     int string_length = ntohs(*x);
 
-    char *temp = (char *)(malloc(sizeof(char) * string_length));
+    char *temp = (char *)(malloc(string_length));
 
     memcpy(temp, &buffer[processed+2], string_length);
 
     // 2 byte string length and string length
     processed += string_length + 2;
-    std::string ret(temp);
+    std::string ret(temp, string_length);
     free(temp);free(x);
 
     return ret;
@@ -101,12 +102,12 @@ std::string AMF0Decoder::processString(const char *buffer) {
  * Method iterates full object from start (0x03) till end (0x000009)
  * and adds pair values to an object struct
  */
-AMFDataPacket AMF0Decoder::processObject(const char *buffer) {
+AMFDataPacket AMF0Decoder::processObject(const char *buffer, int length) {
     AMFDataPacket ret;
     std::string key;
 
     // each iteration will process one key-value pair
-    while (!isEndObject(buffer)){
+    while (!isEndObject(buffer) && length > processed){
         // key is always string
         key = processString(buffer);
         processed++;
@@ -138,7 +139,18 @@ AMFDataPacket AMF0Decoder::processObject(const char *buffer) {
  */
 double AMF0Decoder::processDouble(const char *buffer) {
     uint64_t *x;x = (uint64_t*)(malloc(sizeof(uint64_t)));
-    memcpy(x, &buffer[processed], 8);
+
+    // Random vlc media player bug
+    if (buffer[processed + 7] == '\303'){
+        // exchange next byte with it (add 1 to processed)
+        memcpy((void *) &buffer[processed + 7], &buffer[processed + 8], sizeof(buffer[processed + 8]));
+        processed++; byteError++;
+        // processed - 1 because of extra byte added before(as processed)
+        memcpy(x, &buffer[processed-1], 8);
+    } else{
+        memcpy(x, &buffer[processed], 8);
+    }
+
     *x = ntohll(*x);
     double *m; m = (double*)(x);
     processed += 8;
@@ -156,7 +168,7 @@ bool AMF0Decoder::processBoolean(const char *buffer) {
 }
 
 bool AMF0Decoder::isEndObject(const char *buffer) const {
-    return buffer[processed] != '\000' &&
-           buffer[processed] != '\000' &&
-           buffer[processed] != AMF_END_OBJECT;
+    return buffer[processed] == '\000' &&
+           buffer[processed+1] == '\000' &&
+           buffer[processed+2] == AMF_END_OBJECT;
 }

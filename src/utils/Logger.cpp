@@ -13,10 +13,7 @@ void Logger::log(Error error_type, const char* err) {
         case SOCKET_ERROR_LOG:
             perror(err);
             break;
-        case DATA_LOG:
-            printf("%s ", err);
-            break;
-        case BBDD_LOG:
+        default:
             printf("%s  ", err);
             break;
     }

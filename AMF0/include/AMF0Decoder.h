@@ -26,15 +26,16 @@ class AMF0Decoder {
         static AMFDataPacket BlockDecoder(const char *buffer, int length);
         void UniTypeDecoder(const char *buffer);
 
-        AMF0Decoder(){processed = 0;}
+        AMF0Decoder(){processed = 0; byteError = 0;}
 
         std::string processString(const char*);
-        AMFDataPacket processObject(const char*);
+        AMFDataPacket processObject(const char*, int);
         double processDouble(const char*);
         bool processBoolean(const char*);
         bool isEndObject(const char*) const;
 
         int processed;
+        int byteError;
 };
 
 

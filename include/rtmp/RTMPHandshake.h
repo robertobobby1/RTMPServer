@@ -10,7 +10,8 @@ class RTMPHandshake {
 
         void processHandshake() const;
         void receiveHandshake() const;
-        void sendRandomBytesAndReceiveBack() const;
+        void sendRandomBytes() const;
+        void receiveBack() const;
         void sendHandshake() const;
         static void check(int socket, const char *err);
         static void createHandshakeEcho();

@@ -9,6 +9,7 @@ public:
         SOCKET_LOG,
         SOCKET_ERROR_LOG,
         DATA_LOG,
+        VERBOSE_LOG,
         BBDD_LOG
     };
 

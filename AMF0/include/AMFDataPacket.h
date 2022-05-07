@@ -28,8 +28,7 @@ class AMFDataPacket {
         std::unordered_map<std::string, std::string> Strings;
         std::unordered_map<std::string, double> Doubles;
         std::vector<AMFDataPacket> objectList;
-
-
+        int byteError = 0;
 };
 
 
