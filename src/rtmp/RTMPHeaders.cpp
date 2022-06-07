@@ -230,15 +230,16 @@ Buffer RTMPHeaders::build_basic_header(BASIC_HEADER_TYPE basic_header, int cs_id
  * Build message header part
  * type 0 has inside type 1 that has inside type 2, type 3 is empty
  */
-Buffer RTMPHeaders::build_message_header(MESSAGE_HEADER_TYPE message_header, unsigned int timestamp,
-                                         unsigned int msg_length, uint8_t msg_type_id, unsigned int msg_stream_id) {
+Buffer RTMPHeaders::build_message_header(MESSAGE_HEADER_TYPE message_header, uint32_t timestamp,
+                                         uint32_t msg_length, uint8_t msg_type_id, uint32_t msg_stream_id) {
     auto buff = Buffer(nullptr, 0);
     switch (message_header) {
-        case MESSAGE_HEADER_TYPE::TYPE2: {
+        case MESSAGE_HEADER_TYPE::TYPE0: {
             if (timestamp >= 16777216) {
                 throw RTMPHeaderException("Incompatible message header and null or too big timestamp");
             }
-            buff.append(std::to_string(htonl(timestamp)).c_str(), 3);
+            auto _timestamp = htonl(timestamp);
+            buff.append((const char*)&_timestamp, 3);
         }
         case MESSAGE_HEADER_TYPE::TYPE1: {
             if (msg_length >= 16777216) {
@@ -247,11 +248,15 @@ Buffer RTMPHeaders::build_message_header(MESSAGE_HEADER_TYPE message_header, uns
             if (msg_type_id == 0){
                 throw RTMPHeaderException("Incompatible message header and null message type id");
             }
-            buff.append(std::to_string(htonl(msg_length)).c_str(), 3);
-            buff.append(std::to_string(msg_type_id).c_str(), 1);
+            // shift 8 bit left because we receive it in 4 byte data type
+            auto _msg_length = htonl(msg_length)<<8;
+            buff.append((const char*)&_msg_length, 3);
+
+            buff.append((const char*)&msg_type_id, 1);
         }
-        case MESSAGE_HEADER_TYPE::TYPE0:{
-            buff.append(std::to_string(htonl(msg_stream_id)).c_str(), 4);
+        case MESSAGE_HEADER_TYPE::TYPE2:{
+            auto _msg_stream_id = htonl(msg_stream_id);
+            buff.append((const char*)&_msg_stream_id, 4);
         }
             break;
         case MESSAGE_HEADER_TYPE::TYPE3:

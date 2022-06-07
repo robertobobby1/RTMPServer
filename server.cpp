@@ -1,6 +1,5 @@
 #include "rtmp/RTMPServer.h"
 
-
 int main(){
     // run full application
     try{

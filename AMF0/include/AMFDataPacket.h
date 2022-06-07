@@ -21,6 +21,8 @@ class AMFDataPacket {
         std::string getString(const std::string& key);
         double getDouble(const std::string& key);
 
+        bool is_empty() const;
+
         void pprint();
         void pprint(const std::string &line_prefix);
 
@@ -29,6 +31,7 @@ class AMFDataPacket {
         std::unordered_map<std::string, double> Doubles;
         std::vector<AMFDataPacket> objectList;
         int byteError = 0;
+
 };
 
 

@@ -2,8 +2,10 @@
 #define RTMPSERVER_RTMPCONNEXION_H
 
 #include <bitset>
+#include <list>
 #include "RTMPHeaders.h"
 #include "utils/Buffer.h"
+#include "AMFDataPacket.h"
 
 class RTMPConnexion {
 
@@ -11,15 +13,17 @@ class RTMPConnexion {
 
         explicit RTMPConnexion(int clientFD);
         void processRequest();
-        void processNewPacket();
+        void receiveAndProcessConnect();
         [[nodiscard]] Buffer receive() const;
         void processBody(Buffer*, RTMPHeaders* headers);
-        void processAMFCommand(Buffer* buff, RTMPHeaders* headers);
-        void sendWindowACKSize();
+        void AMFConnectCommand(Buffer* buff, RTMPHeaders* headers);
+
+        int sendWindowACKSize() const;
+        int sendSetPeerBandwidth() const;
+        int sendResulCommand();
 
         int clientFD;
-        bool window_ack_size = false;
-        bool connect = false;
+        AMFDataPacket connect_packet;
 };
 
 

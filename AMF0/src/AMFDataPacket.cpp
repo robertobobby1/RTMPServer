@@ -47,6 +47,11 @@ double AMFDataPacket::getDouble(const std::string& key) {
     return Doubles.find(key)->second;
 }
 
+bool AMFDataPacket::is_empty() const{
+    return objectList.empty() && Doubles.empty()
+        && Strings.empty() && Booleans.empty();
+}
+
 /*
  * pretty Prints full AMF packet
  */

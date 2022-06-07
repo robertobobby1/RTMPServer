@@ -41,25 +41,33 @@ bool Buffer::is_end(){
  * Appends at the end of the buffer (makes it bigger)
  */
 void Buffer::append(const char *extra_buff, int length) {
-    msg_size = msg_size + length;
+
+    // get actual position to reposition on new reallocated buffer
+    std::ptrdiff_t bytes = ((char *)buffer_actual) - ((char *)buffer_ini);
     // allocate new buffer size
-    auto temp = (const char*) malloc(msg_size + length);
-
+    buffer_ini = (const char*) realloc((void *) buffer_ini, msg_size + length);
+    buffer_actual = &buffer_ini[bytes];
     // copy both buffers one after the other
-    memcpy((void *) temp, (void *) buffer_ini , msg_size);
-    memcpy((void *) &temp[msg_size], extra_buff, length);
-
-    // free old buffer, keep new one
-    free((void *) buffer_ini);
-    buffer_ini = temp;
+    memcpy((void *) &buffer_ini[msg_size], extra_buff, length);
+    msg_size = msg_size + length;
 }
 
 /*
  * Appends another buffer to original
+ * Destructive (will free "another" buffer) only keeping original
  */
 void Buffer::append(Buffer buff){
     if (buff.buffer_ini == nullptr){
         return;
     }
     append(buff.buffer_ini, buff.msg_size);
+    buff.free_buffer();
+}
+
+/*
+ * Free buffer pointer to avoid leaks, this method should
+ * always be called, for each buffer
+ */
+void Buffer::free_buffer() {
+    free((void *) buffer_ini);
 }

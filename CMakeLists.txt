@@ -24,12 +24,14 @@ add_executable(RTMPServer
         ${CMAKE_CURRENT_SOURCE_DIR}/src/rtmp/RTMPHandshake.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/Server.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/rtmp/RTMPServer.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/Buffer.cpp )
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/Buffer.cpp
+        )
 target_include_directories(RTMPServer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Threads lib and AMF3 lib
 target_link_libraries(RTMPServer PUBLIC Threads::Threads)
 target_link_libraries(RTMPServer PUBLIC AMF0)
 target_link_libraries(RTMPServer PUBLIC AMF3)
-target_compile_options(RTMPServer PRIVATE -O2)
+target_compile_options(RTMPServer PRIVATE -O0)
 target_compile_options(RTMPServer PRIVATE -Wall)
+target_compile_options(RTMPServer PRIVATE -g)

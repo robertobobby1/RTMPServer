@@ -1,6 +1,7 @@
 #include <vector>
 #include <netinet/in.h>
 #include <cstring>
+#include <memory>
 #include "AMF0Decoder.h"
 #include "AMFDataPacket.h"
 
@@ -80,19 +81,17 @@ void AMF0Decoder::UniTypeDecoder(const char *buffer) {
  * Then updates processed class attr and returns string
  */
 std::string AMF0Decoder::processString(const char *buffer) {
+    std::unique_ptr<uint16_t> _length(new uint16_t);
+    memcpy(_length.get(), &buffer[processed], sizeof(uint16_t));
 
-    uint16_t *x; x = (uint16_t*) malloc(sizeof(uint16_t));
-    memcpy(x, &buffer[processed], sizeof(uint16_t));
-    int string_length = ntohs(*x);
+    int string_length = ntohs(*_length);
 
-    char *temp = (char *)(malloc(string_length));
-
-    memcpy(temp, &buffer[processed+2], string_length);
+    std::unique_ptr<char[]> _string(new char[string_length]);
+    memcpy(_string.get(), &buffer[processed+2], string_length);
 
     // 2 byte string length and string length
     processed += string_length + 2;
-    std::string ret(temp, string_length);
-    free(temp);free(x);
+    std::string ret(_string.get(), string_length);
 
     return ret;
 }
@@ -138,7 +137,7 @@ AMFDataPacket AMF0Decoder::processObject(const char *buffer, int length) {
  * Always 64 bits(8 bytes) with double precision floating point
  */
 double AMF0Decoder::processDouble(const char *buffer) {
-    uint64_t *x;x = (uint64_t*)(malloc(sizeof(uint64_t)));
+    std::unique_ptr<uint64_t> _double(new uint64_t);
 
     // Random vlc media player bug
     if (buffer[processed + 7] == '\303'){
@@ -146,15 +145,16 @@ double AMF0Decoder::processDouble(const char *buffer) {
         memcpy((void *) &buffer[processed + 7], &buffer[processed + 8], sizeof(buffer[processed + 8]));
         processed++; byteError++;
         // processed - 1 because of extra byte added before(as processed)
-        memcpy(x, &buffer[processed-1], 8);
+        memcpy(_double.get(), &buffer[processed-1], 8);
     } else{
-        memcpy(x, &buffer[processed], 8);
+        memcpy(_double.get(), &buffer[processed], 8);
     }
 
-    *x = ntohll(*x);
-    double *m; m = (double*)(x);
+    *_double = ntohll(*_double);
     processed += 8;
-    return *m;
+
+    // cast as double pointer and then dereference otherwise cast to double will break decoder
+    return *((double*) _double.get());
 }
 
 /*

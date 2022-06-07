@@ -6,10 +6,12 @@
 class Buffer {
     public:
         Buffer(const char*, int);
+
         void move_buffer(int bytes_to_move);
         [[nodiscard]] const char *get_actual_position() const;
         [[nodiscard]] int get_size() const;
         bool is_end();
+        void free_buffer();
         void append(const char*,int);
         void append(Buffer buff);
 
