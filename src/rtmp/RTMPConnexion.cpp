@@ -70,8 +70,11 @@ void RTMPConnexion::processRequest() {
             throw SocketException("Couldn't receive connect from client, closing connection");
         }
     }
-    // send window ack and set peer bandwidth
-    if (sendWindowACKSize() == -1 && sendSetPeerBandwidth() == -1){
+    // send window ack, set peer bandwidth and result command
+    if (sendWindowACKSize() == -1 &&
+        sendSetPeerBandwidth() == -1 &&
+        sendResulCommand() == -1
+    ){
         throw SocketException("Error sending window ACK or Peer bandwidth");
     }
 
@@ -125,6 +128,9 @@ void RTMPConnexion::processBody(Buffer* buff, RTMPHeaders* headers) {
 
     switch (headers->message_type_id) {
         case 1:
+            if (sendSetChunkSize(buff) == -1){
+                Logger::log(Logger::VERBOSE_LOG, "Error sending set chunk size back to client");
+            }
         case 2:
         case 3:
         case 4:
@@ -220,7 +226,37 @@ int RTMPConnexion::sendSetPeerBandwidth() const {
  * Send Result command in response to connect
  */
 int RTMPConnexion::sendResulCommand() {
+    AMFDataPacket packet, amf_object1;
 
-    return 0;
+    packet.add("command", "_result");
+    packet.add("transaction_id", 1.0f);
+
+    amf_object1.add();
+
+    packet.add(amf_object1);
+
+    int res = (int)send(clientFD, buff.get_actual_position(), buff.get_size(), 0);
+
+    return res;
+}
+
+int RTMPConnexion::sendSetChunkSize(Buffer* set_peer_client) const {
+    /* one byte basic header, type 0 message header, chunk stream = 2,
+ * timestamp = 0, message_length = 4 bytes, message type 1 (set chunk size),
+ * message stream id = 0
+*/
+    Buffer buff = RTMPHeaders::build_rtmp_header(BASIC_HEADER_TYPE::ONE_BYTE_HEADER, MESSAGE_HEADER_TYPE::TYPE0,
+                                                 2, 0, 4, 1, 0);
+
+    buff.append(set_peer_client->get_actual_position(), 4);
+
+    int res = (int)send(clientFD, buff.get_actual_position(), buff.get_size(), 0);
+
+    // free heap buffers
+    set_peer_client->free_buffer();
+    buff.free_buffer();
+
+    return res;
+
 }
 

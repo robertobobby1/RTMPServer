@@ -6,12 +6,6 @@
 #include <list>
 #include "AMFDataPacket.h"
 
-struct AMFObject{
-    std::unordered_map<std::string, bool> Booleans;
-    std::unordered_map<std::string, std::string> Strings;
-    std::unordered_map<std::string, double> Doubles;
-};
-
 enum amf_types : char {
     AMF_DOUBLE = '\000',
     AMF_BOOL = '\001',

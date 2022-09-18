@@ -11,6 +11,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_library(AMF0 OBJECT
         ${CMAKE_CURRENT_SOURCE_DIR}/src/AMF0Decoder.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/AMFDataPacket.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/utils/NotFoundExcepcion.h)
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/utils/NotFoundExcepcion.h src/AMF0Encoder.cpp include/AMF0Encoder.h)
 
 target_include_directories(AMF0 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

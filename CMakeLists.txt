@@ -32,6 +32,6 @@ target_include_directories(RTMPServer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
 target_link_libraries(RTMPServer PUBLIC Threads::Threads)
 target_link_libraries(RTMPServer PUBLIC AMF0)
 target_link_libraries(RTMPServer PUBLIC AMF3)
-target_compile_options(RTMPServer PRIVATE -O0)
+target_compile_options(RTMPServer PRIVATE -O2)
 target_compile_options(RTMPServer PRIVATE -Wall)
 target_compile_options(RTMPServer PRIVATE -g)
