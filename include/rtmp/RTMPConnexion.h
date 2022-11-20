@@ -20,7 +20,7 @@ class RTMPConnexion {
 
         int sendWindowACKSize() const;
         int sendSetPeerBandwidth() const;
-        int sendResulCommand();
+        int sendResulCommand() const;
         int sendSetChunkSize(Buffer* buff) const;
 
         int clientFD;

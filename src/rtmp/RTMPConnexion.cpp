@@ -11,6 +11,7 @@
 #include "AMF0Decoder.h"
 #include "rtmp/RTMPHandshake.h"
 #include "utils/NotFoundExcepcion.h"
+#include "AMF0Encoder.h"
 
 #define BUFSIZE 4096
 #define HANDSHAKE_BUFFER_SIZE 1538
@@ -195,6 +196,7 @@ int RTMPConnexion::sendWindowACKSize() const {
     int res = (int)send(clientFD, buff.get_actual_position(), buff.get_size(), 0);
 
     buff.free_buffer();
+    std::cout << res;
     return res;
 }
 
@@ -217,7 +219,7 @@ int RTMPConnexion::sendSetPeerBandwidth() const {
     buff.append((const char*)_body, 5);
 
     int res = (int)send(clientFD, buff.get_actual_position(), buff.get_size(), 0);
-
+    std::cout << res;
     buff.free_buffer();
     return res;
 }
@@ -225,18 +227,27 @@ int RTMPConnexion::sendSetPeerBandwidth() const {
 /*
  * Send Result command in response to connect
  */
-int RTMPConnexion::sendResulCommand() {
-    AMFDataPacket packet, amf_object1;
+int RTMPConnexion::sendResulCommand() const {
+    AMFDataPacket packet, amf_object1, amf_object2;
 
     packet.add("command", "_result");
     packet.add("transaction_id", 1.0f);
 
-    amf_object1.add();
-
+    // First object
+    amf_object1.add("fmsVer", "FMS/3,0,1,123");
+    amf_object1.add("capabilities", 31.0f);
     packet.add(amf_object1);
 
-    int res = (int)send(clientFD, buff.get_actual_position(), buff.get_size(), 0);
+    // Second object
+    amf_object2.add("level", "status");
+    amf_object2.add("code", "NetConnection.Connect.Success");
+    amf_object2.add("description", "Connectionsucceded.");
+    amf_object2.add("objectEncoding", 0.0f);
+    packet.add(amf_object2);
 
+    Buffer full_packet_buffer = AMF0Encoder::BlockEncoder(packet);
+    int res = (int)send(clientFD, full_packet_buffer.get_actual_position(), full_packet_buffer.get_size(), 0);
+    std::cout << res;
     return res;
 }
 
@@ -253,7 +264,6 @@ int RTMPConnexion::sendSetChunkSize(Buffer* set_peer_client) const {
     int res = (int)send(clientFD, buff.get_actual_position(), buff.get_size(), 0);
 
     // free heap buffers
-    set_peer_client->free_buffer();
     buff.free_buffer();
 
     return res;
