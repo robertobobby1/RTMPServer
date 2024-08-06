@@ -74,8 +74,8 @@ static int getThreadSafeClientFD() {
  * will then be suspended until requests arrive
  */
 void RTMPServer::ThreadInitializer() {
-    for (unsigned long &i : connection_threads) {
-        pthread_create(&connection_threads[i], nullptr,
+    for (pthread_t &thread : connection_threads) {
+        pthread_create(&thread, nullptr,
                        staticThreadInitializer, nullptr);
     }
 }

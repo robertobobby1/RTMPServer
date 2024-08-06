@@ -1,6 +1,7 @@
 #include <cstring>
 #include <cstdlib>
 #include "utils/Buffer.h"
+#include <cstddef>
 
 /*
  * Creates buffer with pointer to beginning and msgsize of buffer
